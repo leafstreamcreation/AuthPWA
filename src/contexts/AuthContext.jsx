@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
-import { jwtDecode } from 'jwt-decode';
+// import { jwtDecode } from 'jwt-decode';
 import apiClient from '../services/apiClient';
-import cryptoService from '../services/cryptoService';
 
 const AuthContext = createContext();
 
@@ -15,7 +14,7 @@ const authReducer = (state, action) => {
       return {
         ...state,
         user: action.payload,
-        isAuthenticated: !!action.payload,
+        isAuthenticated: action.payload !== null,
         loading: false
       };
     
@@ -127,7 +126,6 @@ export const AuthProvider = ({ children }) => {
       const token = await apiClient.getToken();
       
       if (token && !apiClient.isTokenExpired(token)) {
-        const decoded = jwtDecode(token);
         dispatch({ type: 'SET_TOKEN', payload: token });
         
         // Fetch user profile
@@ -160,9 +158,9 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: 'CLEAR_ERROR' });
 
       const response = await apiClient.login(credentials);
-      const { token, user } = response;
-
+      const { token } = response;
       await apiClient.setToken(token, rememberMe);
+      const user = await apiClient.getProfile();
       dispatch({ type: 'SET_TOKEN', payload: token });
       dispatch({ type: 'SET_USER', payload: user });
 

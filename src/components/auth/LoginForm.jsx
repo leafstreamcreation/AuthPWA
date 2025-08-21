@@ -7,7 +7,6 @@ import {
   Input,
   Button,
   Checkbox,
-  Divider,
   Alert
 } from '@heroui/react';
 import {
@@ -116,15 +115,9 @@ const LoginForm = () => {
             <div className="flex items-center space-x-2 mb-4">
               <Shield className="h-8 w-8 text-primary-600" />
               <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                AuthPWA
+                Heimdall
               </span>
             </div>
-            <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-              Welcome Back
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 text-center">
-              Sign in to your account to continue
-            </p>
           </CardHeader>
 
           <CardBody className="px-8 pb-8">
@@ -235,20 +228,6 @@ const LoginForm = () => {
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
-
-            <Divider className="my-6" />
-
-            <div className="text-center">
-              <p className="text-gray-600 dark:text-gray-400">
-                Don't have an account?{' '}
-                <Link
-                  to="/signup"
-                  className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
-                >
-                  Sign up
-                </Link>
-              </p>
-            </div>
           </CardBody>
         </Card>
       </motion.div>

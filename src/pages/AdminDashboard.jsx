@@ -30,7 +30,6 @@ import {
 } from '@heroui/react';
 import {
   Users,
-  Plus,
   MoreVertical,
   Edit,
   Trash2,
@@ -40,7 +39,7 @@ import {
   Filter,
   UserPlus
 } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
 
 const AdminDashboard = () => {

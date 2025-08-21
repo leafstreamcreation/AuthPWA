@@ -28,8 +28,6 @@ import {
 } from '@heroui/react';
 import {
   User,
-  Shield,
-  Key,
   Plus,
   MoreVertical,
   Edit,
@@ -40,7 +38,7 @@ import {
   Lock
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
 
 const ProfilePage = () => {

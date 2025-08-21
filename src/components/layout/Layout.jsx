@@ -23,10 +23,9 @@ import {
   Shield,
   Sun,
   Moon,
-  Menu
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../hooks/useTheme';
 
 const Layout = () => {
   const { user, logout, isAdmin } = useAuth();

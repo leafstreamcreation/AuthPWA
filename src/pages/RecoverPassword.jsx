@@ -16,7 +16,7 @@ import {
   Shield,
   ArrowLeft
 } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
 
 const RecoverPassword = () => {
