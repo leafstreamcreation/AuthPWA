@@ -3,7 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 import cryptoService from './cryptoService';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
-const API_KEY = import.meta.env.VITE_API_KEY || 'your-api-key-here';
+// const API_KEY = import.meta.env.VITE_API_KEY || 'your-api-key-here';
 
 class ApiClient {
   constructor() {
@@ -12,7 +12,7 @@ class ApiClient {
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': API_KEY
+        // 'X-API-Key': API_KEY
       }
     });
 
@@ -198,11 +198,13 @@ class ApiClient {
 
   // API Methods
   async login(credentials) {
+    // TODO: Encrypt API_KEY before sending
     const response = await this.client.post('/login', credentials);
     return response.data;
   }
 
   async signup(userData) {
+    // TODO: Encrypt API_KEY before sending
     const response = await this.client.post('/signup', userData);
     return response.data;
   }
@@ -241,18 +243,20 @@ class ApiClient {
   //   return response.data;
   // }
 
-  // async resetPassword(email) {
-    // const response = await this.client.post('/reset-password', { email });
-    // return response.data;
-  // }
+  async resetPassword(email) {
+    // TODO: Encrypt API_KEY before sending
+    const response = await this.client.post('/reset-password', { email });
+    return response.data;
+  }
 
-  // async confirmPasswordReset(token, newPassword) {
-  //   const response = await this.client.post('/reset-password/confirm', {
-  //     token,
-  //     newPassword
-  //   });
-  //   return response.data;
-  // }
+  async confirmPasswordReset(token, newPassword) {
+    // TODO: Encrypt API_KEY before sending
+    const response = await this.client.post('/reset-password/confirm', {
+      token,
+      newPassword
+    });
+    return response.data;
+  }
 
   // Admin endpoints
   async getUsers() {
