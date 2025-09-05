@@ -223,35 +223,30 @@ class ApiClient {
     return response.data;
   }
 
-  // async changePassword(passwordData) {
-  //   const response = await this.client.post('/password', passwordData);
-  //   return response.data;
-  // }
-
-  async setup2FA() {
-    const response = await this.client.post('/2fa/enable');
+  async setup2FA(token) {
+    const response = await this.client.post('/2fa/enable', { token });
     return response.data;
   }
 
-  async verify2FA(token) {
-    const response = await this.client.post('/2fa/verify', { token });
+  async verify2FA(credentials) {
+    const response = await this.client.post('/2fa/verify', credentials);
     return response.data;
   }
 
-  // async disable2FA(token) {
-  //   const response = await this.client.delete('/2fa', { data: { token } });
-  //   return response.data;
-  // }
+  async disable2FA(token) {
+    const response = await this.client.post('/2fa/disable', { token });
+    return response.data;
+  }
 
   async resetPassword(email) {
     // TODO: Encrypt API_KEY before sending
-    const response = await this.client.post('/reset-password', { email });
+    const response = await this.client.post('/recover', { email });
     return response.data;
   }
 
   async confirmPasswordReset(token, newPassword) {
     // TODO: Encrypt API_KEY before sending
-    const response = await this.client.post('/reset-password/confirm', {
+    const response = await this.client.post('/recover/confirm', {
       token,
       newPassword
     });
@@ -274,10 +269,10 @@ class ApiClient {
     return response.data;
   }
 
-  // async deleteUser(userId) {
-  //   const response = await this.client.delete(`/admin/users/${userId}`);
-  //   return response.data;
-  // }
+  async toggleUserEnabled(userId) {
+    const response = await this.client.post(`/users/${userId}/enabled`);
+    return response.data;
+  }
 
   // Service credentials management
   async getServiceCredentials(userId) {
@@ -285,20 +280,10 @@ class ApiClient {
     return response.data;
   }
 
-  // async addServiceCredential(credentialData) {
-  //   const response = await this.client.post('/user/credentials', credentialData);
-  //   return response.data;
-  // }
-
-  async updateServiceCredential(userId, credentialId, credentialData) {
+  async updateServiceCredential(userId, credentialData) {
     const response = await this.client.put(`/users/${userId}/credentials`, credentialData);
     return response.data;
   }
-
-  // async deleteServiceCredential(credentialId) {
-  //   const response = await this.client.delete(`/user//credentials`);
-  //   return response.data;
-  // }
 }
 
 export default new ApiClient();
