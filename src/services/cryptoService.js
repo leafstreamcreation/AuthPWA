@@ -36,7 +36,7 @@ class CryptoService {
       encoder.encode(password),
       { name: 'PBKDF2' },
       false,
-      ['deriveBits', 'deriveKey']
+      ['deriveKey']
     );
 
     return crypto.subtle.deriveKey(
@@ -82,7 +82,6 @@ class CryptoService {
 
       return btoa(String.fromCharCode(...result));
     } catch (error) {
-      console.error('Encryption failed:', error);
       throw new Error('Failed to encrypt data');
     }
   }
@@ -112,7 +111,6 @@ class CryptoService {
       const decoder = new TextDecoder();
       return JSON.parse(decoder.decode(decryptedData));
     } catch (error) {
-      console.error('Decryption failed:', error);
       throw new Error('Failed to decrypt data - invalid password or corrupted data');
     }
   }
@@ -126,7 +124,6 @@ class CryptoService {
       sessionStorage.setItem(key, encrypted);
       return true;
     } catch (error) {
-      console.error('Secure storage failed:', error);
       return false;
     }
   }
@@ -141,7 +138,6 @@ class CryptoService {
       
       return await this.decrypt(encrypted, password);
     } catch (error) {
-      console.error('Secure retrieval failed:', error);
       return null;
     }
   }
@@ -173,6 +169,51 @@ class CryptoService {
   clearSecureStorage() {
     sessionStorage.clear();
   }
+
+  async generateXAPIKey() {
+    const iv = crypto.getRandomValues(new Uint8Array(parseInt(import.meta.env.VITE_AES_IV_LENGTH || "12")));
+    const salt = crypto.getRandomValues(new Uint8Array(parseInt(import.meta.env.VITE_PBKDF2_SALT_LENGTH || "16")));
+
+    const baseKey = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(import.meta.env.VITE_API_SECRET || ""),
+      { name: "PBKDF2" },
+      false,
+      ["deriveKey"]
+    );
+    const derivedKey = await crypto.subtle.deriveKey(
+      {
+        name: "PBKDF2",
+        salt,
+        iterations: parseInt(import.meta.env.VITE_PBKDF2_ITERATIONS || "100000"),
+        hash: "SHA-256"
+      },
+      baseKey,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["encrypt"]
+    );
+    const encrypted = await crypto.subtle.encrypt(
+      { 
+        name: "AES-GCM", 
+        iv,
+        tagLength: parseInt(import.meta.env.VITE_AES_TAG_LENGTH || "128")
+      },
+      derivedKey,
+      new TextEncoder().encode(import.meta.env.VITE_API_CIPHER || "")
+    );
+    const fullKey = new Uint8Array(salt.byteLength + iv.byteLength + encrypted.byteLength);
+    fullKey.set(new Uint8Array(encrypted), 0);
+    fullKey.set(iv, encrypted.byteLength);
+    fullKey.set(salt, encrypted.byteLength + iv.byteLength);
+    let binary = '';
+      for (let i = 0; i < fullKey.byteLength; i++) {
+        binary += String.fromCharCode(fullKey[i]);
+      }
+
+      const apiKeyEncryptedBase64 = window.btoa(binary);
+      return apiKeyEncryptedBase64;
+    }
 }
 
 export default new CryptoService();

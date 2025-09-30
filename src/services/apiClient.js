@@ -27,6 +27,11 @@ class ApiClient {
     // Request interceptor
     this.client.interceptors.request.use(
       async (config) => {
+        if (config.headers['X-API-Key']) {
+          const apiKey = await cryptoService.generateXAPIKey();
+          config.headers['X-API-Key'] = apiKey;
+          return config;
+        }
         const token = await this.getToken();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -90,13 +95,12 @@ class ApiClient {
       const authData = await cryptoService.retrieveSecurely('auth_token', 'user_session');
       return authData?.token || null;
     } catch (error) {
-      console.error('Failed to retrieve token:', error);
       return null;
     }
   }
 
   async setToken(token, rememberMe = false) {
-    try {
+
       const authData = { token, timestamp: Date.now() };
       const storageKey = 'auth_token';
       const password = 'user_session';
@@ -111,20 +115,14 @@ class ApiClient {
       }
       
       this.scheduleTokenRefresh(token);
-    } catch (error) {
-      console.error('Failed to store token:', error);
-    }
+
   }
 
   async clearAuth() {
-    try {
       sessionStorage.removeItem('auth_token');
       localStorage.removeItem('auth_token');
       cryptoService.clearSecureStorage();
       this.cancelTokenRefresh();
-    } catch (error) {
-      console.error('Failed to clear auth:', error);
-    }
   }
 
   isTokenExpired(token) {
@@ -139,7 +137,6 @@ class ApiClient {
   }
 
   scheduleTokenRefresh(token) {
-    try {
       const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000;
       const timeUntilRefresh = (decoded.exp - currentTime - 300) * 1000; // Refresh 5 minutes before expiry
@@ -149,9 +146,6 @@ class ApiClient {
           this.refreshToken();
         }, timeUntilRefresh);
       }
-    } catch (error) {
-      console.error('Failed to schedule token refresh:', error);
-    }
   }
 
   cancelTokenRefresh() {
@@ -162,7 +156,6 @@ class ApiClient {
   }
 
   async refreshToken() {
-    try {
       const response = await this.client.post('/auth/refresh');
       const { token } = response.data;
       
@@ -170,10 +163,6 @@ class ApiClient {
       this.scheduleTokenRefresh(token);
       
       return token;
-    } catch (error) {
-      console.error('Token refresh failed:', error);
-      throw error;
-    }
   }
 
   // Exponential backoff retry mechanism
@@ -198,14 +187,14 @@ class ApiClient {
 
   // API Methods
   async login(credentials) {
-    // TODO: Encrypt API_KEY before sending
-    const response = await this.client.post('/login', credentials);
+    const response = await this.client.post('/login', credentials, {
+      headers: { 'X-API-Key': true }});
     return response.data;
   }
 
   async signup(userData) {
-    // TODO: Encrypt API_KEY before sending
-    const response = await this.client.post('/signup', userData);
+    const response = await this.client.post('/signup', userData, {
+      headers: { 'X-API-Key': true }});
     return response.data;
   }
 
@@ -239,17 +228,17 @@ class ApiClient {
   }
 
   async resetPassword(email) {
-    // TODO: Encrypt API_KEY before sending
-    const response = await this.client.post('/recover', { email });
+    const response = await this.client.post('/recover', { email }, {
+      headers: { 'X-API-Key': true }});
     return response.data;
   }
 
   async confirmPasswordReset(token, newPassword) {
-    // TODO: Encrypt API_KEY before sending
     const response = await this.client.post('/recover/confirm', {
       token,
       newPassword
-    });
+    }, {
+      headers: { 'X-API-Key': true }});
     return response.data;
   }
 
