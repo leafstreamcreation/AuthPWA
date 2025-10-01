@@ -3,13 +3,17 @@
  * Provides AES-GCM encryption for secure credential storage
  */
 
+
 class CryptoService {
   constructor() {
     this.algorithm = 'AES-GCM';
-    this.keyLength = 256;
-    this.ivLength = 12; // 96 bits for GCM
-    this.saltLength = 16;
-    this.iterations = 100000; // PBKDF2 iterations
+    this.keyLength = parseInt(import.meta.env.VITE_AES_KEY_LENGTH || "256");
+    this.ivLength = parseInt(import.meta.env.VITE_AES_IV_LENGTH || "12");
+    this.tagLength = parseInt(import.meta.env.VITE_AES_TAG_LENGTH || "128");
+    this.saltLength = parseInt(import.meta.env.VITE_PBKDF2_SALT_LENGTH || "16");
+    this.iterations = parseInt(import.meta.env.VITE_PBKDF2_ITERATIONS || "100000");
+    this.apiSecret = import.meta.env.VITE_API_SECRET || "";
+    this.apiCipher = import.meta.env.VITE_API_CIPHER || "";
   }
 
   /**
@@ -171,12 +175,12 @@ class CryptoService {
   }
 
   async generateXAPIKey() {
-    const iv = crypto.getRandomValues(new Uint8Array(parseInt(import.meta.env.VITE_AES_IV_LENGTH || "12")));
-    const salt = crypto.getRandomValues(new Uint8Array(parseInt(import.meta.env.VITE_PBKDF2_SALT_LENGTH || "16")));
+    const iv = crypto.getRandomValues(new Uint8Array(this.ivLength));
+    const salt = crypto.getRandomValues(new Uint8Array(this.saltLength));
 
     const baseKey = await crypto.subtle.importKey(
       "raw",
-      new TextEncoder().encode(import.meta.env.VITE_API_SECRET || ""),
+      new TextEncoder().encode(this.apiSecret),
       { name: "PBKDF2" },
       false,
       ["deriveKey"]
@@ -185,22 +189,22 @@ class CryptoService {
       {
         name: "PBKDF2",
         salt,
-        iterations: parseInt(import.meta.env.VITE_PBKDF2_ITERATIONS || "100000"),
+        iterations: this.iterations,
         hash: "SHA-256"
       },
       baseKey,
-      { name: "AES-GCM", length: 256 },
+      { name: this.algorithm, length: this.keyLength },
       false,
       ["encrypt"]
     );
     const encrypted = await crypto.subtle.encrypt(
       { 
-        name: "AES-GCM", 
+        name: this.algorithm, 
         iv,
-        tagLength: parseInt(import.meta.env.VITE_AES_TAG_LENGTH || "128")
+        tagLength: parseInt(this.tagLength)
       },
       derivedKey,
-      new TextEncoder().encode(import.meta.env.VITE_API_CIPHER || "")
+      new TextEncoder().encode(this.apiCipher)
     );
     const fullKey = new Uint8Array(salt.byteLength + iv.byteLength + encrypted.byteLength);
     fullKey.set(new Uint8Array(encrypted), 0);
