@@ -12,7 +12,6 @@ class ApiClient {
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
-        // 'X-API-Key': API_KEY
       }
     });
 

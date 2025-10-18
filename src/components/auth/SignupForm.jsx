@@ -172,7 +172,7 @@ const SignupForm = () => {
             <div className="flex items-center space-x-2 mb-4">
               <Shield className="h-8 w-8 text-primary-600" />
               <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                AuthPWA
+                Heimdall
               </span>
             </div>
             <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
