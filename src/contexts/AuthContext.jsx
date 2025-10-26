@@ -159,6 +159,7 @@ export const AuthProvider = ({ children }) => {
 
       const response = await apiClient.login(credentials);
       const { token } = response;
+      console.log(token);
       await apiClient.setToken(token, rememberMe);
       const user = await apiClient.getProfile();
       dispatch({ type: 'SET_TOKEN', payload: token });
