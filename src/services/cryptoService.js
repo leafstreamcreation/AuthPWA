@@ -133,14 +133,19 @@ class CryptoService {
   }
 
   /**
-   * Retrieve and decrypt data from sessionStorage
+   * Retrieve and decrypt data from localStorage, or fallback to sessionStorage
    */
   async retrieveSecurely(key, password) {
     try {
-      const encrypted = sessionStorage.getItem(key);
-      if (!encrypted) return null;
-      
-      return await this.decrypt(encrypted, password);
+      const localEncrypted = localStorage.getItem(key);
+      if (localEncrypted) {
+        const retrieved = await this.decrypt(localEncrypted, password);
+        return retrieved;
+      }
+      const sessionEncrypted = sessionStorage.getItem(key);
+      if (!sessionEncrypted) return null;
+      const retrieved = await this.decrypt(sessionEncrypted, password);
+      return retrieved;
     } catch (error) {
       return null;
     }

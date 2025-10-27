@@ -155,7 +155,7 @@ class ApiClient {
   }
 
   async refreshToken() {
-      const response = await this.client.post('/auth/refresh');
+      const response = await this.client.post('/refresh');
       const { token } = response.data;
       
       await this.setToken(token);
