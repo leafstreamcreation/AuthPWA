@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Card,
@@ -32,15 +32,18 @@ const LoginForm = () => {
   const [showTOTP, setShowTOTP] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const { login, error, clearError } = useAuth();
+  const { login, error, clearError, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = location.state?.from?.pathname || '/profile';
 
   useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
     clearError();
-  }, [clearError]);
+  }, [clearError, isAuthenticated, from, navigate]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -76,7 +79,6 @@ const LoginForm = () => {
     
     try {
       await login(formData, formData.rememberMe);
-      navigate(from, { replace: true });
     } catch (error) {
       // Check if 2FA is required
       if (error.response?.status === 422 && error.response?.data?.requires2FA) {

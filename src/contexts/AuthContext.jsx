@@ -145,7 +145,6 @@ export const AuthProvider = ({ children }) => {
         }
       }
     } catch (error) {
-      console.error('Auth initialization failed:', error);
       dispatch({ type: 'SET_ERROR', payload: 'Failed to initialize authentication' });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
@@ -412,7 +411,7 @@ export const AuthProvider = ({ children }) => {
     createUser,
     deleteUser,
     clearError,
-    isAdmin
+    isAdmin,
   };
 
   return (
