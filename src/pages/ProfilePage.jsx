@@ -50,7 +50,6 @@ const ProfilePage = () => {
     verify2FA,
     disable2FA,
     serviceCredentials,
-    loadServiceCredentials,
     addServiceCredential,
     updateServiceCredential,
     deleteServiceCredential,
@@ -95,10 +94,6 @@ const ProfilePage = () => {
 
   const { isOpen: is2FAOpen, onOpen: on2FAOpen, onOpenChange: on2FAOpenChange } = useDisclosure();
   const { isOpen: isCredentialOpen, onOpen: onCredentialOpen, onOpenChange: onCredentialOpenChange } = useDisclosure();
-
-  useEffect(() => {
-    loadServiceCredentials();
-  }, []);
 
   useEffect(() => {
     if (user) {

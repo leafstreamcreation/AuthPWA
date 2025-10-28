@@ -262,12 +262,12 @@ class ApiClient {
   }
 
   // Service credentials management
-  async getServiceCredentials(userId) {
+  async getServiceCredentialsById(userId) {
     const response = await this.client.get(`/users/${userId}/credentials`);
     return response.data;
   }
 
-  async updateServiceCredential(userId, credentialData) {
+  async updateServiceCredentialsById(userId, credentialData) {
     const response = await this.client.put(`/users/${userId}/credentials`, credentialData);
     return response.data;
   }
