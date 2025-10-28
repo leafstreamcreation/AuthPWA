@@ -172,13 +172,6 @@ class CryptoService {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  /**
-   * Clear all secure storage
-   */
-  clearSecureStorage() {
-    sessionStorage.clear();
-  }
-
   async generateXAPIKey() {
     const iv = crypto.getRandomValues(new Uint8Array(this.ivLength));
     const salt = crypto.getRandomValues(new Uint8Array(this.saltLength));

@@ -179,6 +179,7 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: 'CLEAR_ERROR' });
 
       const response = await apiClient.signup(userData);
+      await apiClient.clearAuth();
       return response;
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Signup failed';

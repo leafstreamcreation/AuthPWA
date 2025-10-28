@@ -120,7 +120,6 @@ class ApiClient {
   async clearAuth() {
       sessionStorage.removeItem('auth_token');
       localStorage.removeItem('auth_token');
-      cryptoService.clearSecureStorage();
       this.cancelTokenRefresh();
   }
 
