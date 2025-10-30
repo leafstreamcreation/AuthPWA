@@ -69,7 +69,7 @@ const Layout = () => {
             <div className="flex items-center space-x-2">
               <Shield className="h-8 w-8 text-primary-600" />
               <span className="font-bold text-xl text-gray-900 dark:text-white">
-                AuthPWA
+                Heimdall
               </span>
             </div>
           </NavbarBrand>
