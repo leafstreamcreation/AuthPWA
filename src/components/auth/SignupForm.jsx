@@ -179,7 +179,7 @@ const SignupForm = () => {
               Create Account
             </h1>
             <p className="text-gray-600 dark:text-gray-400 text-center">
-              Join us and secure your digital identity
+              Fjellworks Credentials Manager
             </p>
           </CardHeader>
 
