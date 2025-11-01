@@ -19,7 +19,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Chip,
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
@@ -28,7 +27,6 @@ import {
 } from '@heroui/react';
 import {
   User,
-  Plus,
   MoreVertical,
   Edit,
   Trash2,
@@ -50,7 +48,6 @@ const ProfilePage = () => {
     verify2FA,
     disable2FA,
     serviceCredentials,
-    addServiceCredential,
     updateServiceCredential,
     deleteServiceCredential,
     error,
@@ -58,8 +55,8 @@ const ProfilePage = () => {
   } = useAuth();
 
   const [profileData, setProfileData] = useState({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
+    // firstName: user?.firstName || '',
+    // lastName: user?.lastName || '',
     email: user?.email || ''
   });
 
@@ -84,9 +81,7 @@ const ProfilePage = () => {
   const [credentialForm, setCredentialForm] = useState({
     id: null,
     serviceName: '',
-    username: '',
     password: '',
-    notes: ''
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -98,8 +93,8 @@ const ProfilePage = () => {
   useEffect(() => {
     if (user) {
       setProfileData({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
+        // firstName: user.firstName || '',
+        // lastName: user.lastName || '',
         email: user.email || ''
       });
     }
@@ -188,16 +183,11 @@ const ProfilePage = () => {
     try {
       if (credentialForm.id) {
         await updateServiceCredential(credentialForm.id, credentialForm);
-      } else {
-        await addServiceCredential(credentialForm);
       }
       
       setCredentialForm({
         id: null,
-        serviceName: '',
-        username: '',
-        password: '',
-        notes: ''
+        password: ''
       });
       onCredentialOpenChange(false);
     } catch (error) {
@@ -260,7 +250,7 @@ const ProfilePage = () => {
           </CardHeader>
           <CardBody>
             <form onSubmit={handleProfileUpdate} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   label="First Name"
                   value={profileData.firstName}
@@ -279,7 +269,7 @@ const ProfilePage = () => {
                   }))}
                   variant="bordered"
                 />
-              </div>
+              </div> */}
               <Input
                 label="Email"
                 type="email"
@@ -296,7 +286,7 @@ const ProfilePage = () => {
                 isLoading={isLoading}
                 startContent={<Save className="w-4 h-4" />}
               >
-                Update Profile
+                Update Email
               </Button>
             </form>
           </CardBody>
@@ -411,41 +401,17 @@ const ProfilePage = () => {
         <Card>
           <CardHeader className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">Service Credentials</h2>
-            <Button
-              color="primary"
-              onPress={() => {
-                setCredentialForm({
-                  id: null,
-                  serviceName: '',
-                  username: '',
-                  password: '',
-                  notes: ''
-                });
-                onCredentialOpen();
-              }}
-              startContent={<Plus className="w-4 h-4" />}
-            >
-              Add Credential
-            </Button>
           </CardHeader>
           <CardBody>
             <Table aria-label="Service credentials table">
               <TableHeader>
                 <TableColumn>SERVICE</TableColumn>
-                <TableColumn>USERNAME</TableColumn>
-                <TableColumn>STATUS</TableColumn>
                 <TableColumn>ACTIONS</TableColumn>
               </TableHeader>
               <TableBody emptyContent="No credentials found">
                 {serviceCredentials.map((credential) => (
                   <TableRow key={credential.id}>
                     <TableCell>{credential.serviceName}</TableCell>
-                    <TableCell>{credential.username}</TableCell>
-                    <TableCell>
-                      <Chip color="success" size="sm">
-                        Active
-                      </Chip>
-                    </TableCell>
                     <TableCell>
                       <Dropdown>
                         <DropdownTrigger>
@@ -547,24 +513,6 @@ const ProfilePage = () => {
               <ModalBody>
                 <form onSubmit={handleCredentialSubmit} className="space-y-4">
                   <Input
-                    label="Service Name"
-                    value={credentialForm.serviceName}
-                    onChange={(e) => setCredentialForm(prev => ({
-                      ...prev,
-                      serviceName: e.target.value
-                    }))}
-                    isRequired
-                  />
-                  <Input
-                    label="Username"
-                    value={credentialForm.username}
-                    onChange={(e) => setCredentialForm(prev => ({
-                      ...prev,
-                      username: e.target.value
-                    }))}
-                    isRequired
-                  />
-                  <Input
                     label="Password"
                     type="password"
                     value={credentialForm.password}
@@ -573,14 +521,6 @@ const ProfilePage = () => {
                       password: e.target.value
                     }))}
                     isRequired
-                  />
-                  <Input
-                    label="Notes (Optional)"
-                    value={credentialForm.notes}
-                    onChange={(e) => setCredentialForm(prev => ({
-                      ...prev,
-                      notes: e.target.value
-                    }))}
                   />
                 </form>
               </ModalBody>
