@@ -173,23 +173,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (userData) => {
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      dispatch({ type: 'CLEAR_ERROR' });
-
-      const response = await apiClient.signup(userData);
-      await apiClient.clearAuth();
-      return response;
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Signup failed';
-      dispatch({ type: 'SET_ERROR', payload: errorMessage });
-      throw error;
-    } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
-    }
-  };
-
   const logout = async () => {
     try {
       await apiClient.logout();
@@ -394,7 +377,6 @@ export const AuthProvider = ({ children }) => {
   const value = {
     ...state,
     login,
-    signup,
     logout,
     updateProfile,
     changePassword,

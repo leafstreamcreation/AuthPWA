@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Card,
   CardBody,
   CardHeader,
   Input,
   Button,
-  Divider,
   Alert,
   Progress
 } from '@heroui/react';
@@ -16,7 +15,6 @@ import {
   Eye,
   EyeOff,
   Shield,
-  User,
   Check,
   X
 } from 'lucide-react';
@@ -25,8 +23,6 @@ import { motion } from 'framer-motion';
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -76,14 +72,6 @@ const SignupForm = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
-    }
-
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
-    }
-
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -117,10 +105,9 @@ const SignupForm = () => {
     
     try {
       await signup({
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
         email: formData.email.trim(),
-        password: formData.password
+        password: formData.password,
+        role: "USER"
       });
       
       // Redirect to login with success message
@@ -200,34 +187,6 @@ const SignupForm = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  type="text"
-                  label="First Name"
-                  placeholder="John"
-                  value={formData.firstName}
-                  onChange={(e) => handleInputChange('firstName', e.target.value)}
-                  startContent={<User className="w-4 h-4 text-gray-500" />}
-                  isInvalid={!!errors.firstName}
-                  errorMessage={errors.firstName}
-                  variant="bordered"
-                  autoComplete="given-name"
-                  isRequired
-                />
-
-                <Input
-                  type="text"
-                  label="Last Name"
-                  placeholder="Doe"
-                  value={formData.lastName}
-                  onChange={(e) => handleInputChange('lastName', e.target.value)}
-                  isInvalid={!!errors.lastName}
-                  errorMessage={errors.lastName}
-                  variant="bordered"
-                  autoComplete="family-name"
-                  isRequired
-                />
-              </div>
 
               <Input
                 type="email"
@@ -343,20 +302,6 @@ const SignupForm = () => {
                 {isLoading ? 'Creating Account...' : 'Create Account'}
               </Button>
             </form>
-
-            <Divider className="my-6" />
-
-            <div className="text-center">
-              <p className="text-gray-600 dark:text-gray-400">
-                Already have an account?{' '}
-                <Link
-                  to="/login"
-                  className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
-                >
-                  Sign in
-                </Link>
-              </p>
-            </div>
           </CardBody>
         </Card>
       </motion.div>

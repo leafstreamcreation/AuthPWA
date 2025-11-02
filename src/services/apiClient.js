@@ -190,12 +190,6 @@ class ApiClient {
     return response.data;
   }
 
-  async signup(userData) {
-    const response = await this.client.post('/signup', userData, {
-      headers: { 'X-API-Key': true }});
-    return response.data;
-  }
-
   async logout() {
       await this.clearAuth();
   }
