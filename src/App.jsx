@@ -10,7 +10,6 @@ import RequireAuth from './components/auth/RequireAuth';
 
 // Pages
 import LoginForm from './components/auth/LoginForm';
-import SignupForm from './components/auth/SignupForm';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import RecoverPassword from './pages/RecoverPassword';
@@ -26,7 +25,6 @@ function App() {
             <Routes>
               {/* Public routes */}
               <Route path="/login" element={<LoginForm />} />
-              <Route path="/signup" element={<SignupForm />} />
               <Route path="/recover-password" element={<RecoverPassword />} />
               
               {/* Protected routes */}
