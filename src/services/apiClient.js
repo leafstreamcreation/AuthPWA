@@ -183,6 +183,8 @@ class ApiClient {
     }
   }
 
+  //bs commiiiiit I love Chloe
+
   // API Methods
   async login(credentials) {
     const response = await this.client.post('/login', credentials, {
@@ -200,6 +202,7 @@ class ApiClient {
   }
 
   async updateProfile(profileData) {
+    console.log(profileData);
     const response = await this.client.post('/profile', profileData);
     return response.data;
   }
