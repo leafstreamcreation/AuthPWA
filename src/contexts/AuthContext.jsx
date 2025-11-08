@@ -198,19 +198,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const changePassword = async (passwordData) => {
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      await apiClient.changePassword(passwordData);
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Password change failed';
-      dispatch({ type: 'SET_ERROR', payload: errorMessage });
-      throw error;
-    } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
-    }
-  };
-
   const setup2FA = async () => {
     try {
       const response = await apiClient.setup2FA();
@@ -379,7 +366,6 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     updateProfile,
-    changePassword,
     setup2FA,
     verify2FA,
     disable2FA,

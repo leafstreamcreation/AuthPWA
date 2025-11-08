@@ -43,7 +43,6 @@ const ProfilePage = () => {
   const {
     user,
     updateProfile,
-    changePassword,
     setup2FA,
     verify2FA,
     disable2FA,
@@ -61,13 +60,11 @@ const ProfilePage = () => {
   });
 
   const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
 
   const [showPasswords, setShowPasswords] = useState({
-    current: false,
     new: false,
     confirm: false
   });
@@ -124,13 +121,11 @@ const ProfilePage = () => {
     setIsLoading(true);
     
     try {
-      await changePassword({
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword
+      await updateProfile({
+        password: passwordData.newPassword
       });
       
       setPasswordData({
-        currentPassword: '',
         newPassword: '',
         confirmPassword: ''
       });
@@ -319,27 +314,6 @@ const ProfilePage = () => {
             <div>
               <h3 className="font-medium mb-4">Change Password</h3>
               <form onSubmit={handlePasswordChange} className="space-y-4">
-                <Input
-                  label="Current Password"
-                  type={showPasswords.current ? 'text' : 'password'}
-                  value={passwordData.currentPassword}
-                  onChange={(e) => setPasswordData(prev => ({
-                    ...prev,
-                    currentPassword: e.target.value
-                  }))}
-                  endContent={
-                    <button
-                      type="button"
-                      onClick={() => setShowPasswords(prev => ({
-                        ...prev,
-                        current: !prev.current
-                      }))}
-                    >
-                      {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  }
-                  variant="bordered"
-                />
                 <Input
                   label="New Password"
                   type={showPasswords.new ? 'text' : 'password'}
