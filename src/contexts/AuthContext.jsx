@@ -107,7 +107,7 @@ const initialState = {
   loading: true,
   error: null,
   serviceCredentials: [],
-  adminUsers: { users: [], total: 0, page: 1 }
+  adminUsers: [],
 };
 
 export const AuthProvider = ({ children }) => {
@@ -307,9 +307,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Admin functions
-  const loadUsers = async (page = 1, limit = 10) => {
+  const loadUsers = async () => {
     try {
-      const usersData = await apiClient.getUsers(page, limit);
+      const usersData = await apiClient.getUsers();
       dispatch({ type: 'SET_ADMIN_USERS', payload: usersData });
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Failed to load users';

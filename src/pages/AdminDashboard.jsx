@@ -24,8 +24,8 @@ import {
   Input,
   Select,
   SelectItem,
-  Pagination,
-  Avatar,
+  // Pagination,
+  // Avatar,
   Alert
 } from '@heroui/react';
 import {
@@ -62,7 +62,6 @@ const AdminDashboard = () => {
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
   const { isOpen: isCreateOpen, onOpen: onCreateOpen, onOpenChange: onCreateOpenChange } = useDisclosure();
@@ -70,12 +69,13 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     loadUsersData();
-  }, [currentPage]);
+  },[]);
 
   const loadUsersData = async () => {
     try {
       setIsLoading(true);
-      await loadUsers(currentPage, 10);
+      await loadUsers();
+      console.log(adminUsers);
     } catch (error) {
       console.error('Failed to load users:', error);
     } finally {
@@ -125,27 +125,27 @@ const AdminDashboard = () => {
     onEditOpen();
   };
 
-  const filteredUsers = adminUsers.users?.filter(user => {
+  const filteredUsers = adminUsers.filter(user => {
     const matchesSearch = searchQuery === '' || 
-      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchQuery.toLowerCase());
+      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+      // user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      // user.lastName.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
     
     return matchesSearch && matchesRole;
   }) || [];
 
-  const getRoleColor = (role) => {
-    switch (role) {
-      case 'ADMIN':
-        return 'danger';
-      case 'USER':
-        return 'primary';
-      default:
-        return 'default';
-    }
-  };
+  // const getRoleColor = (role) => {
+  //   switch (role) {
+  //     case 'ADMIN':
+  //       return 'danger';
+  //     case 'USER':
+  //       return 'primary';
+  //     default:
+  //       return 'default';
+  //   }
+  // };
 
   const get2FAStatus = (user) => {
     return user.twoFactorEnabled ? (
@@ -159,7 +159,7 @@ const AdminDashboard = () => {
     );
   };
 
-  const totalPages = Math.ceil((adminUsers.total || 0) / 10);
+  // const totalPages = Math.ceil((adminUsers.total || 0) / 10);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -205,7 +205,7 @@ const AdminDashboard = () => {
           <Card>
             <CardBody className="text-center">
               <div className="text-2xl font-bold text-primary-600">
-                {adminUsers.total || 0}
+                {adminUsers.length || 0}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 Total Users
@@ -215,7 +215,7 @@ const AdminDashboard = () => {
           <Card>
             <CardBody className="text-center">
               <div className="text-2xl font-bold text-green-600">
-                {adminUsers.users?.filter(u => u.twoFactorEnabled).length || 0}
+                {adminUsers.filter(u => u.has2FA).length || 0}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 2FA Enabled
@@ -225,7 +225,7 @@ const AdminDashboard = () => {
           <Card>
             <CardBody className="text-center">
               <div className="text-2xl font-bold text-red-600">
-                {adminUsers.users?.filter(u => u.role === 'ADMIN').length || 0}
+                {adminUsers.filter(u => u.role === 'ADMIN').length || 0}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 Administrators
@@ -284,7 +284,7 @@ const AdminDashboard = () => {
                   <TableRow key={user.id}>
                     <TableCell>
                       <div className="flex items-center space-x-3">
-                        <Avatar
+                        {/* <Avatar
                           name={`${user.firstName} ${user.lastName}`}
                           size="sm"
                           src={user.avatar}
@@ -293,10 +293,10 @@ const AdminDashboard = () => {
                           <div className="font-medium">
                             {user.firstName} {user.lastName}
                           </div>
+                        </div> */}
                           <div className="text-sm text-gray-500">
                             ID: {user.id}
                           </div>
-                        </div>
                       </div>
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
@@ -357,7 +357,7 @@ const AdminDashboard = () => {
               </TableBody>
             </Table>
 
-            {totalPages > 1 && (
+            {/* {totalPages > 1 && (
               <div className="flex justify-center mt-4">
                 <Pagination
                   total={totalPages}
@@ -365,7 +365,7 @@ const AdminDashboard = () => {
                   onChange={setCurrentPage}
                 />
               </div>
-            )}
+            )} */}
           </CardBody>
         </Card>
       </motion.div>
