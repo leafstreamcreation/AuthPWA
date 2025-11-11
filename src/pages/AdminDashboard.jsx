@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableColumn,
   TableBody,
+  TableRow,
   TableCell,
   Button,
   Modal,
@@ -20,10 +21,6 @@ import {
   SelectItem,
   // Pagination,
   // Avatar,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
   Alert,
   Chip
 } from '@heroui/react';
@@ -32,28 +29,28 @@ import {
   Search,
   Filter,
   UserPlus,
-  MoreVertical,
   Edit,
-  Trash2,
-  Shield,
-  ShieldCheck
+  Lock,
+  ShieldOff,
+  ShieldCheck,
+  UserCircle,
+  User,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
-import RoleCell from '../components/admin/RoleCell';
 
 const AdminDashboard = () => {
   const renderCell = useCallback((user, columnKey) => {
     const value = user[columnKey];
 
     switch (columnKey) {
-      case 'user':
+      case 'id':
         return userCell(value);
       case 'email':
         return emailCell(value);
       case 'role':
         return roleCell(value);
-      case 'twoFactorEnabled':
+      case 'has2FA':
         return twoFactorEnabledCell(value);
       case 'actions':
         return actionsCell(user);
@@ -142,18 +139,6 @@ const AdminDashboard = () => {
       console.error('Role update failed:', error);
     }
   };
-  
-  const get2FAStatus = (user) => {
-      return user.twoFactorEnabled ? (
-        <Chip color="success" size="sm" startContent={<ShieldCheck className="w-3 h-3" />}>
-          Enabled
-        </Chip>
-      ) : (
-        <Chip color="warning" size="sm" startContent={<Shield className="w-3 h-3" />}>
-          Disabled
-        </Chip>
-      );
-    };
 
   const filteredUsers = adminUsers.filter(user => {
     const matchesSearch = searchQuery === '' || 
@@ -166,32 +151,32 @@ const AdminDashboard = () => {
     return matchesSearch && matchesRole;
   }) || [];
 
-  const columns = {
-    user: {
-      header: 'User',
-      accessorKey: 'user'
+  const columns = [
+    {
+      header: 'ID',
+      accessorKey: 'id'
     },
-    email: {
+    {
       header: 'Email',
       accessorKey: 'email'
     },
-    role: {
+    {
       header: 'Role',
       accessorKey: 'role'
     },
-    twoFactorEnabled: {
+    {
       header: '2FA',
-      accessorKey: 'twoFactorEnabled'
+      accessorKey: 'has2FA'
     },
-    actions: {
+    {
       header: 'Actions',
       accessorKey: 'actions'
     }
-  }
+  ];
 
   const userCell = (id) => {
     return (
-    <div className="flex items-center space-x-3">
+    <div className="flex justify-center space-x-3">
       {/* <Avatar
         name={`${user.firstName} ${user.lastName}`}
         size="sm"
@@ -203,7 +188,7 @@ const AdminDashboard = () => {
         </div>
       </div> */}
         <div className="text-sm text-gray-500">
-          ID: {id}
+          {id}
         </div>
     </div>
     );
@@ -211,7 +196,7 @@ const AdminDashboard = () => {
 
   const emailCell = (email) => {
     return (
-    <div className="flex items-center space-x-3">
+    <div className="flex justify-center space-x-3">
       <div className="text-sm text-gray-500">
         {email}
       </div>
@@ -221,45 +206,46 @@ const AdminDashboard = () => {
 
   const roleCell = (role) => {
     return (
-    <div className="flex items-center space-x-3">
-      <div className="text-sm text-gray-500">
-        {role}
-      </div>
+    <div className="flex justify-center space-x-3">
+        {role === 'ADMIN' ? (
+            <Chip size="sm" startContent={<UserCircle className="w-3 h-3" />} />
+          ) : (
+            <Chip size="sm" startContent={<User className="w-3 h-3" />} />
+          )}
     </div>
     );
   };
 
-  const twoFactorEnabledCell = (user) => {
-    return get2FAStatus(user)
+  const twoFactorEnabledCell = (has2FA) => {
+      return (
+        <div className="flex justify-center">
+          {has2FA ? (
+            <Chip color="success" size="sm" startContent={<ShieldCheck className="w-3 h-3" />} />
+          ) : (
+            <Chip color="warning" size="sm" startContent={<ShieldOff className="w-3 h-3" />} />
+          )}
+        </div>
+      );
   };
 
   const actionsCell = (user) => {
     return (
-      <Dropdown>
-        <DropdownTrigger>
-          <Button isIconOnly size="sm" variant="light">
-            <MoreVertical className="w-4 h-4" />
-          </Button>
-        </DropdownTrigger>
-        <DropdownMenu aria-label="Actions">
-          <DropdownItem
-            key="edit"
-            startContent={<Edit className="w-4 h-4" />}
-            onPress={() => handleEditUser(user)}
-          >
-            Edit
-          </DropdownItem>
-          <DropdownItem
-            key="delete"
-            className="text-danger"
-            color="danger"
-            startContent={<Trash2 className="w-4 h-4" />}
-            onPress={() => handleDeleteUser(user.id)}
-          >
-            Delete
-          </DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
+      <div className="flex justify-center space-x-3">
+        <Button
+          color="primary"
+          onPress={() => handleEditUser(user)}
+          isIconOnly
+        >
+          <Edit className="w-3 h-3" />
+        </Button>
+        <Button
+          color="danger"
+          onPress={() => handleDeleteUser(user.id)}
+          isIconOnly
+        >
+          <Lock className="w-3 h-3" />
+        </Button>
+      </div>
     );
   };
 
@@ -288,20 +274,10 @@ const AdminDashboard = () => {
             <Users className="h-8 w-8 text-primary-600" />
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                User Management
+                Manage Users
               </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                Manage users and their permissions
-              </p>
             </div>
           </div>
-          <Button
-            color="primary"
-            onPress={onCreateOpen}
-            startContent={<UserPlus className="w-4 h-4" />}
-          >
-            Add User
-          </Button>
         </div>
 
         {error && (
@@ -334,16 +310,6 @@ const AdminDashboard = () => {
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 2FA Enabled
-              </div>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody className="text-center">
-              <div className="text-2xl font-bold text-red-600">
-                {adminUsers.filter(u => u.role === 'ADMIN').length || 0}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Administrators
               </div>
             </CardBody>
           </Card>
@@ -393,9 +359,9 @@ const AdminDashboard = () => {
                 loadingContent="Loading users..."
                 items={filteredUsers}
               >
-                {(user) => (
-                  <TableRow key={user.id}>
-                    {(columnKey) => <TableCell>{renderCell(user, columnKey)}</TableCell>}
+                {(item) => (
+                  <TableRow key={item.id}>
+                    {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
                   </TableRow>
                 )}
               </TableBody>
