@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   CardBody,
@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableColumn,
   TableBody,
+  TableCell,
   Button,
   Modal,
   ModalContent,
@@ -19,26 +20,55 @@ import {
   SelectItem,
   // Pagination,
   // Avatar,
-  Alert
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  Alert,
+  Chip
 } from '@heroui/react';
 import {
   Users,
   Search,
   Filter,
-  UserPlus
+  UserPlus,
+  MoreVertical,
+  Edit,
+  Trash2,
+  Shield,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
-import UserRow from '../components/admin/UserRow';
+import RoleCell from '../components/admin/RoleCell';
 
 const AdminDashboard = () => {
+  const renderCell = useCallback((user, columnKey) => {
+    const value = user[columnKey];
+
+    switch (columnKey) {
+      case 'user':
+        return userCell(value);
+      case 'email':
+        return emailCell(value);
+      case 'role':
+        return roleCell(value);
+      case 'twoFactorEnabled':
+        return twoFactorEnabledCell(value);
+      case 'actions':
+        return actionsCell(user);
+      default:
+        return value;
+    }
+  }, []);
   const {
     adminUsers,
     loadUsers,
     updateUserRole,
     createUser,
     error,
-    clearError
+    clearError,
+    deleteUser
   } = useAuth();
 
   const [selectedUser, setSelectedUser] = useState(null);
@@ -89,6 +119,22 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteUser = async (userId) => {
+      if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+        try {
+          await deleteUser(userId);
+          loadUsersData();
+        } catch (error) {
+          console.error('User deletion failed:', error);
+        }
+      }
+    };
+    
+    const handleEditUser = (user) => {
+      setSelectedUser(user);
+      onEditOpen();
+    };
+
   const handleRoleChange = async (userId, newRole) => {
     try {
       await updateUserRole(userId, newRole);
@@ -96,6 +142,18 @@ const AdminDashboard = () => {
       console.error('Role update failed:', error);
     }
   };
+  
+  const get2FAStatus = (user) => {
+      return user.twoFactorEnabled ? (
+        <Chip color="success" size="sm" startContent={<ShieldCheck className="w-3 h-3" />}>
+          Enabled
+        </Chip>
+      ) : (
+        <Chip color="warning" size="sm" startContent={<Shield className="w-3 h-3" />}>
+          Disabled
+        </Chip>
+      );
+    };
 
   const filteredUsers = adminUsers.filter(user => {
     const matchesSearch = searchQuery === '' || 
@@ -107,6 +165,103 @@ const AdminDashboard = () => {
     
     return matchesSearch && matchesRole;
   }) || [];
+
+  const columns = {
+    user: {
+      header: 'User',
+      accessorKey: 'user'
+    },
+    email: {
+      header: 'Email',
+      accessorKey: 'email'
+    },
+    role: {
+      header: 'Role',
+      accessorKey: 'role'
+    },
+    twoFactorEnabled: {
+      header: '2FA',
+      accessorKey: 'twoFactorEnabled'
+    },
+    actions: {
+      header: 'Actions',
+      accessorKey: 'actions'
+    }
+  }
+
+  const userCell = (id) => {
+    return (
+    <div className="flex items-center space-x-3">
+      {/* <Avatar
+        name={`${user.firstName} ${user.lastName}`}
+        size="sm"
+        src={user.avatar}
+      />
+      <div>
+        <div className="font-medium">
+          {user.firstName} {user.lastName}
+        </div>
+      </div> */}
+        <div className="text-sm text-gray-500">
+          ID: {id}
+        </div>
+    </div>
+    );
+  };
+
+  const emailCell = (email) => {
+    return (
+    <div className="flex items-center space-x-3">
+      <div className="text-sm text-gray-500">
+        {email}
+      </div>
+    </div>
+    );
+  };
+
+  const roleCell = (role) => {
+    return (
+    <div className="flex items-center space-x-3">
+      <div className="text-sm text-gray-500">
+        {role}
+      </div>
+    </div>
+    );
+  };
+
+  const twoFactorEnabledCell = (user) => {
+    return get2FAStatus(user)
+  };
+
+  const actionsCell = (user) => {
+    return (
+      <Dropdown>
+        <DropdownTrigger>
+          <Button isIconOnly size="sm" variant="light">
+            <MoreVertical className="w-4 h-4" />
+          </Button>
+        </DropdownTrigger>
+        <DropdownMenu aria-label="Actions">
+          <DropdownItem
+            key="edit"
+            startContent={<Edit className="w-4 h-4" />}
+            onPress={() => handleEditUser(user)}
+          >
+            Edit
+          </DropdownItem>
+          <DropdownItem
+            key="delete"
+            className="text-danger"
+            color="danger"
+            startContent={<Trash2 className="w-4 h-4" />}
+            onPress={() => handleDeleteUser(user.id)}
+          >
+            Delete
+          </DropdownItem>
+        </DropdownMenu>
+      </Dropdown>
+    );
+  };
 
   // const getRoleColor = (role) => {
   //   switch (role) {
@@ -227,21 +382,22 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardBody>
             <Table aria-label="Users table">
-              <TableHeader>
-                <TableColumn>USER</TableColumn>
-                <TableColumn>EMAIL</TableColumn>
-                <TableColumn>ROLE</TableColumn>
-                <TableColumn>2FA STATUS</TableColumn>
-                <TableColumn>ACTIONS</TableColumn>
+              <TableHeader columns={columns}>
+                {(column) => (
+                  <TableColumn key={column.accessorKey}>{column.header}</TableColumn>
+                )}
               </TableHeader>
               <TableBody
                 isLoading={isLoading}
                 emptyContent="No users found"
                 loadingContent="Loading users..."
+                items={filteredUsers}
               >
-                {filteredUsers.map((user) => (
-                  <UserRow key={user.id} user={user} onEditOpen={onEditOpen} setSelectedUser={setSelectedUser} />
-                ))}
+                {(user) => (
+                  <TableRow key={user.id}>
+                    {(columnKey) => <TableCell>{renderCell(user, columnKey)}</TableCell>}
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
 
