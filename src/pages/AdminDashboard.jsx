@@ -22,64 +22,34 @@ import {
   // Pagination,
   // Avatar,
   Alert,
-  Chip
 } from '@heroui/react';
 import {
   Users,
   Search,
   Filter,
-  UserPlus,
-  Edit,
-  Lock,
-  ShieldOff,
-  ShieldCheck,
-  UserCircle,
-  User,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import AdminTableCell from '../components/admin/AdminTableCell';
 import { motion } from 'framer-motion';
 
 const AdminDashboard = () => {
   const renderCell = useCallback((user, columnKey) => {
     const value = user[columnKey];
-
-    switch (columnKey) {
-      case 'id':
-        return userCell(value);
-      case 'email':
-        return emailCell(value);
-      case 'role':
-        return roleCell(value);
-      case 'has2FA':
-        return twoFactorEnabledCell(value);
-      case 'actions':
-        return actionsCell(user);
-      default:
-        return value;
-    }
+    return AdminTableCell(columnKey, value, handleEditUser, handleDeleteUser);
   }, []);
   const {
     adminUsers,
     loadUsers,
     updateUserRole,
-    createUser,
     error,
     clearError,
     deleteUser
   } = useAuth();
 
   const [selectedUser, setSelectedUser] = useState(null);
-  const [newUser, setNewUser] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    role: 'USER'
-  });
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
-
-  const { isOpen: isCreateOpen, onOpen: onCreateOpen, onOpenChange: onCreateOpenChange } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onOpenChange: onEditOpenChange } = useDisclosure();
 
   useEffect(() => {
@@ -95,24 +65,6 @@ const AdminDashboard = () => {
       console.error('Failed to load users:', error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleCreateUser = async (e) => {
-    e.preventDefault();
-    
-    try {
-      await createUser(newUser);
-      setNewUser({
-        firstName: '',
-        lastName: '',
-        email: '',
-        role: 'USER'
-      });
-      onCreateOpenChange(false);
-      loadUsersData();
-    } catch (error) {
-      console.error('User creation failed:', error);
     }
   };
 
@@ -143,11 +95,7 @@ const AdminDashboard = () => {
   const filteredUsers = adminUsers.filter(user => {
     const matchesSearch = searchQuery === '' || 
       user.email.toLowerCase().includes(searchQuery.toLowerCase());
-      // user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      // user.lastName.toLowerCase().includes(searchQuery.toLowerCase());
-    
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-    
     return matchesSearch && matchesRole;
   }) || [];
 
@@ -173,94 +121,6 @@ const AdminDashboard = () => {
       accessorKey: 'actions'
     }
   ];
-
-  const userCell = (id) => {
-    return (
-    <div className="flex justify-center space-x-3">
-      {/* <Avatar
-        name={`${user.firstName} ${user.lastName}`}
-        size="sm"
-        src={user.avatar}
-      />
-      <div>
-        <div className="font-medium">
-          {user.firstName} {user.lastName}
-        </div>
-      </div> */}
-        <div className="text-sm text-gray-500">
-          {id}
-        </div>
-    </div>
-    );
-  };
-
-  const emailCell = (email) => {
-    return (
-    <div className="flex justify-center space-x-3">
-      <div className="text-sm text-gray-500">
-        {email}
-      </div>
-    </div>
-    );
-  };
-
-  const roleCell = (role) => {
-    return (
-    <div className="flex justify-center space-x-3">
-        {role === 'ADMIN' ? (
-            <Chip size="sm" startContent={<UserCircle className="w-3 h-3" />} />
-          ) : (
-            <Chip size="sm" startContent={<User className="w-3 h-3" />} />
-          )}
-    </div>
-    );
-  };
-
-  const twoFactorEnabledCell = (has2FA) => {
-      return (
-        <div className="flex justify-center">
-          {has2FA ? (
-            <Chip color="success" size="sm" startContent={<ShieldCheck className="w-3 h-3" />} />
-          ) : (
-            <Chip color="warning" size="sm" startContent={<ShieldOff className="w-3 h-3" />} />
-          )}
-        </div>
-      );
-  };
-
-  const actionsCell = (user) => {
-    return (
-      <div className="flex justify-center space-x-3">
-        <Button
-          color="primary"
-          onPress={() => handleEditUser(user)}
-          isIconOnly
-        >
-          <Edit className="w-3 h-3" />
-        </Button>
-        <Button
-          color="danger"
-          onPress={() => handleDeleteUser(user.id)}
-          isIconOnly
-        >
-          <Lock className="w-3 h-3" />
-        </Button>
-      </div>
-    );
-  };
-
-  // const getRoleColor = (role) => {
-  //   switch (role) {
-  //     case 'ADMIN':
-  //       return 'danger';
-  //     case 'USER':
-  //       return 'primary';
-  //     default:
-  //       return 'default';
-  //   }
-  // };
-
-  // const totalPages = Math.ceil((adminUsers.total || 0) / 10);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -367,82 +227,9 @@ const AdminDashboard = () => {
               </TableBody>
             </Table>
 
-            {/* {totalPages > 1 && (
-              <div className="flex justify-center mt-4">
-                <Pagination
-                  total={totalPages}
-                  page={currentPage}
-                  onChange={setCurrentPage}
-                />
-              </div>
-            )} */}
           </CardBody>
         </Card>
       </motion.div>
-
-      {/* Create User Modal */}
-      <Modal isOpen={isCreateOpen} onOpenChange={onCreateOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader>Create New User</ModalHeader>
-              <ModalBody>
-                <form onSubmit={handleCreateUser} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input
-                      label="First Name"
-                      value={newUser.firstName}
-                      onChange={(e) => setNewUser(prev => ({
-                        ...prev,
-                        firstName: e.target.value
-                      }))}
-                      isRequired
-                    />
-                    <Input
-                      label="Last Name"
-                      value={newUser.lastName}
-                      onChange={(e) => setNewUser(prev => ({
-                        ...prev,
-                        lastName: e.target.value
-                      }))}
-                      isRequired
-                    />
-                  </div>
-                  <Input
-                    label="Email"
-                    type="email"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser(prev => ({
-                      ...prev,
-                      email: e.target.value
-                    }))}
-                    isRequired
-                  />
-                  <Select
-                    label="Role"
-                    selectedKeys={[newUser.role]}
-                    onSelectionChange={(keys) => setNewUser(prev => ({
-                      ...prev,
-                      role: Array.from(keys)[0]
-                    }))}
-                  >
-                    <SelectItem key="USER" value="USER">User</SelectItem>
-                    <SelectItem key="ADMIN" value="ADMIN">Admin</SelectItem>
-                  </Select>
-                </form>
-              </ModalBody>
-              <ModalFooter>
-                <Button variant="light" onPress={onClose}>
-                  Cancel
-                </Button>
-                <Button color="primary" onPress={handleCreateUser}>
-                  Create User
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
 
       {/* Edit User Modal */}
       <Modal isOpen={isEditOpen} onOpenChange={onEditOpenChange}>
