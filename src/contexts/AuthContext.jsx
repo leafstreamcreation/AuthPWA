@@ -344,7 +344,7 @@ export const AuthProvider = ({ children }) => {
 
   const deleteUser = async (userId) => {
     try {
-      await apiClient.deleteUser(userId);
+      await apiClient.toggleUserEnabled(userId);
       dispatch({ type: 'DELETE_ADMIN_USER', payload: userId });
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Failed to delete user';

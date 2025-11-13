@@ -136,8 +136,8 @@ class ApiClient {
 
   scheduleTokenRefresh(token) {
       const decoded = jwtDecode(token);
-      const currentTime = Date.now() / 1000;
-      const timeUntilRefresh = (decoded.exp - currentTime - 300) * 1000; // Refresh 5 minutes before expiry
+      const expiry = decoded.exp + 3600000;
+      const timeUntilRefresh = expiry - Date.now() + 330000;
 
       if (timeUntilRefresh > 0) {
         this.refreshTimeout = setTimeout(() => {
